@@ -19,7 +19,8 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-RUN chown -R www-data:www-data /var/www/html/writable
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/public
 
 # Apache config
 RUN a2enmod rewrite
