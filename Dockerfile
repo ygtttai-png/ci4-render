@@ -1,25 +1,15 @@
-FROM php:8.3-fpm
+FROM php:8.3-apache
 
-# Nginx ve gerekli paketler
+# Gerekli extension'lar
 RUN apt-get update && apt-get install -y \
-    nginx \
     libicu-dev \
     libzip-dev \
     zip \
     unzip \
-    git \
-    curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    && docker-php-ext-install \
-    intl \
-    mbstring \
-    pdo_mysql \
-    zip \
-    gd \
-    opcache \
-    && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install intl mbstring pdo_mysql zip gd opcache
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -31,9 +21,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN chown -R www-data:www-data /var/www/html/writable
 
-# Nginx konfigurasyonu
-COPY .docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Apache config
+RUN a2enmod rewrite
+COPY .htaccess /var/www/html/public/.htaccess
 
 EXPOSE 80
-
-CMD service nginx start && php-fpm
