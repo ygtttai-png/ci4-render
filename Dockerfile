@@ -23,8 +23,5 @@ RUN chown -R www-data:www-data /var/www/html/writable
 
 # Apache config
 RUN a2enmod rewrite
-COPY .htaccess /var/www/html/public/.htaccess
-# .htaccess için izin
-RUN cp public/.htaccess public/.htaccess 2>/dev/null || true
 
 EXPOSE 80
