@@ -1,6 +1,8 @@
 FROM php:8.3-fpm
 
+# Nginx ve gerekli paketler
 RUN apt-get update && apt-get install -y \
+    nginx \
     libicu-dev \
     libzip-dev \
     zip \
@@ -16,7 +18,8 @@ RUN apt-get update && apt-get install -y \
     pdo_mysql \
     zip \
     gd \
-    opcache
+    opcache \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -28,6 +31,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN chown -R www-data:www-data /var/www/html/writable
 
-EXPOSE 9000
+# Nginx konfigurasyonu
+COPY .docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD ["php-fpm"]
+EXPOSE 80
+
+CMD service nginx start && php-fpm
