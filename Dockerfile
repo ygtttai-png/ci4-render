@@ -23,6 +23,17 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/public
 
 # Apache config
-RUN a2enmod rewrite
+RUN a2enmod rewrite \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && printf '%s\n' \
+        '<VirtualHost *:80>' \
+        '    DocumentRoot /var/www/html/public' \
+        '    <Directory /var/www/html/public>' \
+        '        Options FollowSymLinks' \
+        '        AllowOverride All' \
+        '        Require all granted' \
+        '    </Directory>' \
+        '</VirtualHost>' \
+        > /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
